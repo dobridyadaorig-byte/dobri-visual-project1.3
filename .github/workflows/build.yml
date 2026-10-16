@@ -2,35 +2,28 @@ name: Unpack ZIP and Save JAR
 
 on:
   push:
-    branches: [ "main" ] # Сборка будет запускаться при пуше в ветку main
-  workflow_dispatch:      # Позволит запускать сборку вручную кнопкой на GitHub
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   unpack-job:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Скачиваем файлы вашего репозитория в виртуальную машину
       - name: Checkout repository
         uses: actions/checkout@v4
 
-            # 2. Автоматически находим и распаковываем ЛЮБОЙ ZIP-архив в репозитории
       - name: Unpack ZIP file
         run: |
-          echo "Ищем ZIP-архивы в репозитории..."
-          # Находим первый попавшийся .zip файл
-          ZIP_FILE=$(find . -name "*.zip" -maxdepth 2 | head -n 1)
-          
+          ZIP_FILE=$(find . -name "*.zip" | head -n 1)
           if [ -z "$ZIP_FILE" ]; then
-            echo "❌ Ошибка: В репозитории не найдено ни одного ZIP-файла!"
-            echo "Вот список файлов, которые сейчас есть в корне:"
-            ls -la
             exit 1
           fi
-          
-          echo "📦 Найден архив: $ZIP_FILE"
-          echo "Распаковка архива..."
           unzip "$ZIP_FILE" -d unpacked_files/
-          
-          echo "✅ Содержимое папки после распаковки:"
-          ls -R unpacked_files/
+
+      - name: Upload Unpacked Content
+        uses: actions/upload-artifact@v4
+        with:
+          name: unpacked-archive-content
+          path: unpacked_files/
+          retention-days: 5
