@@ -1,0 +1,33 @@
+name: Unpack ZIP and Save JAR
+
+on:
+  push:
+    branches: [ "main" ] # Сборка будет запускаться при пуше в ветку main
+  workflow_dispatch:      # Позволит запускать сборку вручную кнопкой на GitHub
+
+jobs:
+  unpack-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Скачиваем файлы вашего репозитория в виртуальную машину
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Распаковываем ZIP-архив (замените archive.zip на имя вашего архива)
+      - name: Unpack ZIP file
+        run: |
+          echo "Распаковка архива..."
+          unzip archive.zip -d unpacked_files/
+          
+          # На всякий случай проверяем в логах, что .jar файл на месте
+          echo "Содержимое папки после распаковки:"
+          ls -R unpacked_files/
+
+      # 3. Сохраняем полученный JAR-файл в артефакты GitHub
+      - name: Upload JAR Artifact
+        uses: actions/artifacts/upload-artifact@v4
+        with:
+          name: my-minecraft-jar # Имя архива, который можно будет скачать с GitHub
+          path: unpacked_files/**/*.jar # Ищет любой .jar файл внутри распакованной папки
+          retention-days: 5 # Сколько дней файл будет храниться на GitHub
