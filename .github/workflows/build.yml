@@ -14,20 +14,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Распаковываем ZIP-архив (замените archive.zip на имя вашего архива)
+            # 2. Автоматически находим и распаковываем ЛЮБОЙ ZIP-архив в репозитории
       - name: Unpack ZIP file
         run: |
-          echo "Распаковка архива..."
-          unzip archive.zip -d unpacked_files/
+          echo "Ищем ZIP-архивы в репозитории..."
+          # Находим первый попавшийся .zip файл
+          ZIP_FILE=$(find . -name "*.zip" -maxdepth 2 | head -n 1)
           
-          # На всякий случай проверяем в логах, что .jar файл на месте
-          echo "Содержимое папки после распаковки:"
+          if [ -z "$ZIP_FILE" ]; then
+            echo "❌ Ошибка: В репозитории не найдено ни одного ZIP-файла!"
+            echo "Вот список файлов, которые сейчас есть в корне:"
+            ls -la
+            exit 1
+          fi
+          
+          echo "📦 Найден архив: $ZIP_FILE"
+          echo "Распаковка архива..."
+          unzip "$ZIP_FILE" -d unpacked_files/
+          
+          echo "✅ Содержимое папки после распаковки:"
           ls -R unpacked_files/
-
-           # 3. Сохраняем полученный JAR-файл в артефакты GitHub
-      - name: Upload JAR Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: my-minecraft-jar # Имя, под которым сохранится файл на гитхабе
-          path: unpacked_files/**/*.jar # Ищет любой .jar файл в папке распаковки
-          retention-days: 5
