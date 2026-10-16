@@ -24,10 +24,10 @@ jobs:
           echo "Содержимое папки после распаковки:"
           ls -R unpacked_files/
 
-      # 3. Сохраняем полученный JAR-файл в артефакты GitHub
+           # 3. Сохраняем полученный JAR-файл в артефакты GitHub
       - name: Upload JAR Artifact
-        uses: actions/artifacts/upload-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
-          name: my-minecraft-jar # Имя архива, который можно будет скачать с GitHub
-          path: unpacked_files/**/*.jar # Ищет любой .jar файл внутри распакованной папки
-          retention-days: 5 # Сколько дней файл будет храниться на GitHub
+          name: my-minecraft-jar # Имя, под которым сохранится файл на гитхабе
+          path: unpacked_files/**/*.jar # Ищет любой .jar файл в папке распаковки
+          retention-days: 5
