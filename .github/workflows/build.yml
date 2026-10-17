@@ -1,21 +1,38 @@
 name: build
-on: [push, workflow_dispatch]
+on:
+  push:
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: unzip -q -o "$(ls -t *.zip | head -7)"
+
+      - name: Распаковать VizMenu.zip
+        run: |
+          ls -la
+          unzip -o VizMenu.zip -d unpacked
+          ls -la unpacked/VizMenu
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 25
+          java-version: 21
+
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 9.2.0
-      - run: gradle build --stacktrace
-        working-directory: VizMenu
+
+      - name: Собрать VizMenu
+        working-directory: unpacked/VizMenu
+        run: gradle build --no-daemon
+
+      - name: Показать что собралось
+        run: ls -la unpacked/VizMenu/build/libs
+
       - uses: actions/upload-artifact@v4
         with:
-          name: DobriViz-jar
-          path: DobriVisual/build/libs/*.jar
+          name: VizMenu-jar
+          path: unpacked/VizMenu/build/libs/vizmenu-1.0.0.jar
+          if-no-files-found: error
