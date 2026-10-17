@@ -1,29 +1,21 @@
-name: Unpack ZIP and Save JAR
-
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
-
+name: build
+on: [push, workflow_dispatch]
 jobs:
-  unpack-job:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Unpack ZIP file
-        run: |
-          ZIP_FILE=$(find . -name "*.zip" | head -n 1)
-          if [ -z "$ZIP_FILE" ]; then
-            exit 1
-          fi
-          unzip "$ZIP_FILE" -d unpacked_files/
-
-      - name: Upload Unpacked Content
-        uses: actions/upload-artifact@v4
+      - uses: actions/checkout@v4
+      - run: unzip -q -o "$(ls -t *.zip | head -7)"
+      - uses: actions/setup-java@v4
         with:
-          name: unpacked-archive-content
-          path: unpacked_files/
-          retention-days: 5
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 9.2.0
+      - run: gradle build --stacktrace
+        working-directory: DobriVisual
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dobri-visual-jar
+          path: DobriVisual/build/libs/*.jar
