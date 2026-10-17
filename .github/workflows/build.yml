@@ -9,10 +9,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Распаковать VizMenu.zip
+      - name: Распаковать зип
         run: |
-          ls -la
-          unzip -o VizMenu.zip -d unpacked
+          ZIP=$(ls VizMenu*.zip | head -n 1)
+          echo "Распаковываю: $ZIP"
+          mkdir -p unpacked
+          unzip -o "$ZIP" -d unpacked
           ls -la unpacked/VizMenu
 
       - uses: actions/setup-java@v4
@@ -34,5 +36,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: VizMenu-jar
-          path: unpacked/VizMenu/build/libs/vizmenu-1.0.0.jar
+          path: unpacked/VizMenu/build/libs/vizmenu-*.jar
           if-no-files-found: error
