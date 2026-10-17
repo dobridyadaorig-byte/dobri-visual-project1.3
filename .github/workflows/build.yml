@@ -14,8 +14,8 @@ jobs:
         with:
           gradle-version: 9.2.0
       - run: gradle build --stacktrace
-        working-directory: DobriVisual
+        working-directory: VizMenu
       - uses: actions/upload-artifact@v4
         with:
-          name: dobri-visual-jar
+          name: DobriViz-jar
           path: DobriVisual/build/libs/*.jar
